@@ -2,9 +2,13 @@ package examples.entity;
 
 import examples.domain.Age;
 import examples.domain.Salary;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+
 import org.seasar.doma.Column;
+import org.seasar.doma.Domain;
 import org.seasar.doma.Entity;
 import org.seasar.doma.GeneratedValue;
 import org.seasar.doma.GenerationType;
@@ -47,6 +51,46 @@ public class Employee {
   @Transient Department department;
 
   @OriginalStates Employee originalStates;
+
+  /* Add enum domain field */
+  @Column(name = "HOGE_TYPE")
+  @HogeAnnotation
+  HogeType hogeType;
+
+  @Target({ElementType.TYPE_USE})
+  public @interface HogeAnnotation {}
+
+  public HogeType getHogeType() {
+    return hogeType;
+  }
+
+  public void setHogeType(HogeType hogeType) {
+    this.hogeType = hogeType;
+  }
+
+  @Domain(valueType = Integer.class, factoryMethod = "of")
+  public enum HogeType {
+    A(1);
+
+    private final Integer value;
+
+    private HogeType(Integer value) {
+      this.value = value;
+    }
+
+    public static HogeType of(Integer value) {
+      for (HogeType hogeType : HogeType.values()) {
+        if (hogeType.value.equals(value)) {
+          return hogeType;
+        }
+      }
+      throw new IllegalArgumentException();
+    }
+
+    public Integer getValue() {
+      return value;
+    }
+  }
 
   public Integer getId() {
     return id;
